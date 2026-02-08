@@ -1,0 +1,22 @@
+[package]
+name = "cf"
+version = "1.0.0"
+edition = "2021"
+description = "Cloudflare infrastructure management CLI for Claude Code"
+authors = ["Mason"]
+
+[dependencies]
+clap = { version = "4", features = ["derive", "env"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+anyhow = "1"
+thiserror = "1"
+dotenvy = "0.15"
+rust-s3 = { version = "0.34", default-features = false, features = ["tokio-rustls-tls"] }
+mime_guess = "2"
+
+[profile.release]
+lto = true
+strip = true
