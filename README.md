@@ -1,6 +1,6 @@
 # CF CLI
 
-> Cloudflare infrastructure management CLI for Claude Code and AI Agents
+> Cloudflare 基础设施管理 CLI，专为 AI Agent 设计
 
 <div align="center">
 
@@ -8,125 +8,112 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Pebble](https://img.shields.io/badge/pebble-v1.1-blue.svg)
 
-**Pebble Spec v1.1 compliant** - Designed for AI agent integration
+**Pebble Spec v1.1 规范兼容** - 为 AI Agent 集成而设计
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Configuration](#configuration) • [Development](#development)
+[English](./README_EN.md) • [简体中文](./README.md)
 
 </div>
 
 ---
 
-## ✨ Features
+## ✨ 特性
 
-- 🌐 **DNS Management** - Create, list, get, delete DNS records via Cloudflare API
-- 🔄 **Caddy Proxy** - Add reverse proxy, load balancer configs via SSH
-- 🏥 **Service Health Checks** - Monitor port listening, health endpoints, Docker/PM2 status
-- 📋 **Registry Management** - Local registry.json validation and management
-- 🔐 **R2 Storage** - Upload/download files to Cloudflare R2 (S3-compatible)
-- 🤖 **AI Agent Mode** - JSON Lines output for seamless AI integration
-- 📊 **Structured Errors** - Pebble-compliant error format with retry hints
-- 🎯 **Zero Config** - Works with environment variables, no config files needed
+- 🌐 **DNS 管理** - 通过 Cloudflare API 创建、列出、获取、删除 DNS 记录
+- 🔄 **Caddy 反向代理** - 通过 SSH 添加反向代理、负载均衡配置
+- 🏥 **服务健康检查** - 监控端口监听、健康端点、Docker/PM2 状态
+- 📋 **Registry 管理** - 本地 registry.json 验证和管理
+- 🔐 **R2 存储** - 上传/下载文件到 Cloudflare R2（兼容 S3）
+- 🤖 **AI Agent 模式** - JSON Lines 输出，无缝 AI 集成
+- 📊 **结构化错误** - Pebble 规范兼容的错误格式，带重试提示
+- 🎯 **零配置** - 使用环境变量，无需配置文件
 
-## 🚀 Installation
+## 🚀 快速开始
 
-### Prerequisites
+### 前置要求
 
-- Rust 1.70 or higher
-- Cargo (Rust package manager)
+- Rust 1.70 或更高版本
+- Cargo（Rust 包管理器）
 
-### From Source
+### 从源码安装
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/cf-cli.git
+# 克隆仓库
+git clone https://github.com/mason0510/cf-cli.git
 cd cf-cli
 
-# Build release binary
+# 编译 Release 版本
 cargo build --release
 
-# Install to PATH
+# 安装到 PATH
 cp target/release/cf ~/.cargo/bin/
-# or
+# 或
 sudo cp target/release/cf /usr/local/bin/
 ```
 
-### Using Cargo
+### 使用 Cargo 安装
 
 ```bash
 cargo install --path .
 ```
 
-## Usage
+## 📖 使用方法
+
+### 基础命令
 
 ```bash
-# DNS operations
-cf dns list --domain example.com
-cf dns create --domain example.com --name api --ip 1.2.3.4
-cf dns delete --domain example.com --name api
+# 查看帮助
+cf --help
 
-# Caddy reverse proxy
-cf caddy add --server 1.2.3.4 --domain api.example.com --upstream localhost:3000
-cf caddy reload --server 1.2.3.4
-
-# Service checks
-cf service health --url https://api.example.com/health
-cf service check --server 1.2.3.4 --port 3000
-
-# Registry management
-cf registry stats
-cf registry validate
-```
-
-## Agent Mode
-
-Use `--agent` flag for JSON Lines output (for Claude Code integration):
-
-```bash
-cf dns list --domain example.com --agent
-```
-
-Output format (Pebble Spec v1.1):
-```json
-{"v":1,"type":"log","payload":{"level":"info","message":"..."}}
-{"v":1,"type":"result","payload":{...}}
-```
-
-## Manifest
-
-```bash
+# 查看工具清单（Agent 模式）
 cf --manifest
+
+# 查看域名解析记录
+cf dns list --domain example.com
+
+# 添加域名解析
+cf dns create --domain example.com --name api --ip 1.2.3.4
+
+# 检查网站是否正常
+cf service health --url https://api.example.com/health
 ```
 
-Returns machine-readable tool manifest for agent discovery.
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-CF CLI uses environment variables for configuration. Create a `.env` file or export variables:
+### 子命令帮助
 
 ```bash
-# Copy the example file
+cf dns --help           # DNS 管理
+cf caddy --help         # Caddy 配置
+cf service --help       # 服务检查
+cf registry --help      # Registry 管理
+```
+
+## ⚙️ 配置
+
+### 环境变量
+
+CF CLI 使用环境变量进行配置。创建 `.env` 文件或导出变量：
+
+```bash
+# 复制示例文件
 cp .env.example .env
 
-# Edit .env and fill in your values
+# 编辑 .env 并填入您的值
 nano .env
 ```
 
-**Required variables per domain**:
+**每个域名需要的变量**：
 
 ```bash
-# Pattern: CLOUDFLARE_{DOMAIN_SLUG}_{ZONE_ID|API_TOKEN}
-# Example for domain example.com:
+# 模式：CLOUDFLARE_{域名简称}_{ZONE_ID|API_TOKEN}
+# 示例域名：example.com
 CLOUDFLARE_EXAMPLE_ZONE_ID=your_zone_id_here
 CLOUDFLARE_EXAMPLE_API_TOKEN=your_api_token_here
 
-# Example for domain yourdomain.com:
+# 示例域名：yourdomain.com
 CLOUDFLARE_YOURDOMAIN_ZONE_ID=your_zone_id_here
 CLOUDFLARE_YOURDOMAIN_API_TOKEN=your_api_token_here
 ```
 
-**Optional R2 storage variables**:
+**可选的 R2 存储变量**：
 
 ```bash
 CLOUDFLARE_R2_BUCKET_NAME=your_bucket_name
@@ -137,64 +124,111 @@ CLOUDFLARE_R2_PUBLIC_URL=https://your_public_url
 CLOUDFLARE_R2_FOLDER_PREFIX=uploads/
 ```
 
-### Getting API Credentials
+### 获取 API 凭证
 
-1. **Cloudflare API Token**:
-   - Visit https://dash.cloudflare.com/profile/api-tokens
-   - Click "Create Token"
-   - Use "Edit zone DNS" template or create custom token
-   - Copy the token to your `.env` file
+1. **Cloudflare API Token**：
+   - 访问 https://dash.cloudflare.com/profile/api-tokens
+   - 点击 "Create Token"
+   - 使用 "Edit zone DNS" 模板或创建自定义 Token
+   - 复制 Token 到您的 `.env` 文件
 
-2. **Zone ID**:
-   - Go to your domain dashboard on Cloudflare
-   - Scroll down to "API" section on the right sidebar
-   - Copy the "Zone ID"
+2. **Zone ID**：
+   - 在 Cloudflare 上进入您的域名面板
+   - 滚动到右侧边栏的 "API" 部分
+   - 复制 "Zone ID"
 
-3. **R2 Credentials** (optional):
-   - Go to R2 dashboard on Cloudflare
-   - Create R2 bucket if needed
-   - Generate API tokens under "Manage R2 API Tokens"
+3. **R2 凭证**（可选）：
+   - 进入 Cloudflare 的 R2 面板
+   - 如需要，创建 R2 存储桶
+   - 在 "Manage R2 API Tokens" 下生成 API Token
 
-## Pebble Spec
+## 🤖 AI Agent 模式
 
-This CLI follows [Pebble Spec v1.1](./PEBBLE-SPEC.md) - a standard for AI-friendly CLI tools.
+CF CLI 完全支持 Pebble Spec v1.1，可与 Claude Code 等 AI 工具无缝集成。
 
-Key features:
-- Dual mode: Human-readable (default) + Agent mode (JSON Lines)
-- Structured error format with retry hints
-- Machine-readable manifest
-- Consistent exit codes
-
-## Development
-
-### Release Process
-
-**Important**: When code is updated, notify users via Bark:
+### Agent 模式输出
 
 ```bash
-# 1. Build new version
-cd ~/code/opensource/cf-cli
-cargo build --release
+# JSON Lines 输出
+cf dns list --domain example.com --json
 
-# 2. Install
-cp target/release/cf ~/bin/cf
-
-# 3. Notify user via Bark (requires BARK_KEY env or --key)
-bark "cf-cli 已更新" "新版本已安装到 ~/bin/cf" --group "dev"
+# 工具清单（自动发现能力）
+cf --manifest
 ```
 
-### Sync to Production
+### 结构化错误
 
-Keep both directories in sync:
+所有错误遵循 Pebble 规范，包含重试提示和上下文信息：
+
+```json
+{
+  "error": "Missing environment variable: CLOUDFLARE_EXAMPLE_ZONE_ID",
+  "context": {
+    "domain": "example.com",
+    "required_var": "CLOUDFLARE_EXAMPLE_ZONE_ID"
+  },
+  "retry_hint": "Add the missing environment variable to your .env file"
+}
+```
+
+## 📋 Pebble 规范
+
+本 CLI 遵循 [Pebble Spec v1.1](./PEBBLE-SPEC.md) - AI 友好 CLI 工具标准。
+
+### 支持的 Pebble 特性
+
+- ✅ `--manifest` - 输出工具清单（JSON）
+- ✅ `--agent` - Agent 模式（JSON Lines 输出）
+- ✅ 结构化错误（带 `retry_hint`）
+- ✅ 环境变量配置（零配置文件）
+- ✅ 标准退出码
+
+## 📚 详细文档
+
+- **DNS 管理**：创建、列出、更新、删除 DNS 记录
+- **Caddy 集成**：通过 SSH 配置反向代理和负载均衡
+- **健康检查**：端口检查、HTTP 健康端点、Docker/PM2 状态
+- **R2 存储**：文件上传/下载、批量操作
+- **Registry 管理**：本地域名和服务器信息管理
+
+## 🛠️ 开发
 
 ```bash
-# Opensource → Production
-cp -r ~/code/opensource/cf-cli/src/* ~/code/06-production-business-money-live/cloudflare/cf-cli/src/
+# 克隆仓库
+git clone https://github.com/mason0510/cf-cli.git
+cd cf-cli
 
-# Production → Opensource
-cp -r ~/code/06-production-business-money-live/cloudflare/cf-cli/src/* ~/code/opensource/cf-cli/src/
+# 开发构建
+cargo build
+
+# 运行测试
+cargo test
+
+# 检查代码
+cargo clippy
+
+# 格式化代码
+cargo fmt
 ```
 
-## License
+## 📄 许可证
 
-MIT
+MIT License - 详见 [LICENSE](LICENSE)
+
+## 🤝 贡献
+
+欢迎贡献！请随时提交 Issue 或 Pull Request。
+
+## 🔗 相关项目
+
+- [pebble](https://github.com/mason0510/pebble) - 面向 AI Agent 的 CLI 技能规范查询工具
+- [Pebble Spec](https://github.com/mason0510/pebble/blob/main/PEBBLE-SPEC.md) - AI 友好 CLI 工具标准
+
+## 📧 联系方式
+
+- GitHub: [@mason0510](https://github.com/mason0510)
+- Issues: [GitHub Issues](https://github.com/mason0510/cf-cli/issues)
+
+---
+
+**让 Cloudflare 管理更简单！** 🚀
