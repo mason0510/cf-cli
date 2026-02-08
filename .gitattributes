@@ -1,0 +1,23 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.rs text eol=lf
+*.toml text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Windows
+*.bat text eol=crlf
+
+# Lockfiles
+Cargo.lock binary
+
+# Binary files
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
